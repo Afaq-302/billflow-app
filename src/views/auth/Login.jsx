@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -112,7 +112,10 @@ export default function Login() {
         </div>
       </div>
 
-      <div className="hidden lg:flex flex-1 items-center justify-center p-8" style={{ background: "var(--gradient-hero)" }}>
+      <div
+        className="hidden lg:flex flex-1 items-center justify-center p-8"
+        style={{ background: "var(--gradient-hero)" }}
+      >
         <div className="text-center max-w-md">
           <h2 className="text-3xl font-bold text-primary-foreground mb-4">Manage invoices with confidence</h2>
           <p className="text-primary-foreground/80">
