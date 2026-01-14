@@ -1,0 +1,152 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  email        String        @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime      @default(now())
+  clients      Client[]
+  invoices     Invoice[]
+  payments     Payment[]
+  receipts     Receipt[]
+  settings     Settings?
+  reminderLogs ReminderLog[]
+}
+
+model Client {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  name      String
+  email     String
+  phone     String?
+  address   String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  invoices     Invoice[]
+  payments     Payment[]
+  receipts     Receipt[]
+  reminderLogs ReminderLog[]
+}
+
+model Invoice {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  userId   String @db.ObjectId
+  user     User   @relation(fields: [userId], references: [id])
+  clientId String @db.ObjectId
+  client   Client @relation(fields: [clientId], references: [id])
+
+  invoiceNumber    String
+  status           String
+  issueDate        DateTime
+  dueDate          DateTime
+  currency         String
+  taxRate          Float
+  discount         Float?
+  lineItems        Json
+  paymentLinkToken String?
+  notes            String?
+  terms            String?
+  subtotal         Float
+  taxTotal         Float
+  discountTotal    Float
+  grandTotal       Float
+  paidTotal        Float
+  balanceDue       Float
+  sentAt           DateTime?
+  lastReminderAt   DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  payments     Payment[]
+  receipts     Receipt[]
+  reminderLogs ReminderLog[] // ✅ ADD THIS
+}
+
+model Payment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  invoiceId String   @db.ObjectId
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id])
+  clientId  String   @db.ObjectId
+  client    Client   @relation(fields: [clientId], references: [id])
+  amount    Float
+  method    String
+  date      DateTime
+  reference String?
+  note      String?
+  createdAt DateTime @default(now())
+  receipt   Receipt?
+}
+
+model Receipt {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+
+  receiptNumber String
+
+  invoiceId String  @db.ObjectId
+  invoice   Invoice @relation(fields: [invoiceId], references: [id])
+
+  paymentId String  @unique @db.ObjectId // ✅ ADD @unique
+  payment   Payment @relation(fields: [paymentId], references: [id])
+
+  clientId String @db.ObjectId
+  client   Client @relation(fields: [clientId], references: [id])
+
+  issuedAt  DateTime
+  amount    Float
+  currency  String
+  createdAt DateTime @default(now())
+}
+
+model Settings {
+  id                      String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId                  String   @unique @db.ObjectId
+  user                    User     @relation(fields: [userId], references: [id])
+  businessName            String
+  businessEmail           String
+  businessPhone           String
+  businessAddress         String
+  currencyDefault         String
+  taxRateDefault          Float
+  invoicePrefix           String
+  nextInvoiceNumber       Int
+  estimatePrefix          String
+  nextEstimateNumber      Int
+  receiptPrefix           String
+  nextReceiptNumber       Int
+  defaultPaymentTermsDays Int
+  emailTemplates          Json
+  theme                   String
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}
+
+model ReminderLog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  invoiceId String   @db.ObjectId
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id])
+  clientId  String   @db.ObjectId
+  client    Client   @relation(fields: [clientId], references: [id])
+  type      String
+  channel   String
+  subject   String
+  message   String
+  sentAt    DateTime
+  createdAt DateTime @default(now())
+}

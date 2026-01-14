@@ -1,0 +1,32 @@
+# dependencies
+node_modules/
+
+# next.js
+.next/
+out/
+
+# env
+.env*
+!.env.example
+
+# vercel
+.vercel/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+
+# testing
+coverage/
+
+# production
+build/
+
+# prisma local db (keep schema + migrations)
+prisma/*.db
+prisma/*.db-journal
+prisma/*.sqlite
